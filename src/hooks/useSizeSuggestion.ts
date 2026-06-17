@@ -106,11 +106,18 @@ export function useSizeSuggestion() {
         return;
       }
 
-      const json = await res.json();
       if (!res.ok) {
-        setState({ status: "error", message: json.error ?? "Lỗi không xác định." });
-        return;
+        let errorMsg = "Lỗi không xác định.";
+        try {
+          const json = await res.json();
+          errorMsg = json.error ?? errorMsg;
+        } catch {
+          // Response is not JSON (e.g. HTML/text error page)
+        }
+        throw new Error(errorMsg);
       }
+
+      const json = await res.json();
       setState({ status: "success", data: json as SizeSuggestion });
     } catch (err) {
       console.warn("Fetch failed, falling back to client-side local matching:", err);
