@@ -31,11 +31,11 @@ export default function DemoSelection() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="group relative bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden"
+            className="group relative bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col"
           >
             <div className="absolute top-0 right-0 w-64 h-64 bg-slate-100 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 opacity-50 group-hover:opacity-100 transition-opacity"></div>
 
-            <div className="relative z-10">
+            <div className="relative z-10 flex flex-col h-full">
               <div className="w-16 h-16 bg-slate-100 text-slate-700 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-slate-900 group-hover:text-white transition-colors duration-300">
                 <MonitorPlay className="w-8 h-8" />
               </div>
@@ -43,7 +43,8 @@ export default function DemoSelection() {
               <h2 className="text-2xl font-bold text-gray-900 mb-3">
                 Platform Sandbox
               </h2>
-              <p className="text-gray-500 mb-8 leading-relaxed h-20">
+              {/* Đã xóa h-20, thêm flex-grow để đẩy nút Link xuống đáy */}
+              <p className="text-gray-500 mb-8 leading-relaxed flex-grow">
                 Dive straight into the core 3D engine. Best for brands and
                 developers wanting to test constraints, performance, and
                 features.
@@ -51,7 +52,7 @@ export default function DemoSelection() {
 
               <Link
                 to="/try-on"
-                className="inline-flex items-center gap-2 font-bold text-slate-700 group-hover:text-slate-900"
+                className="inline-flex items-center gap-2 font-bold text-slate-700 group-hover:text-slate-900 mt-auto"
               >
                 Launch Sandbox{" "}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -64,30 +65,31 @@ export default function DemoSelection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="group relative bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden ring-2 ring-transparent hover:ring-[#FF6F61]/20"
+            className="group relative bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden ring-2 ring-transparent hover:ring-[#FF6F61]/20 flex flex-col"
           >
             <div className="absolute top-0 right-0 w-64 h-64 bg-orange-100 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 opacity-50 group-hover:opacity-100 transition-opacity"></div>
 
-            <div className="relative z-10">
+            <div className="relative z-10 flex flex-col h-full">
               <div className="w-16 h-16 bg-orange-50 text-[#FF6F61] rounded-2xl flex items-center justify-center mb-8 group-hover:bg-[#FF6F61] group-hover:text-white transition-colors duration-300">
                 <ShoppingBag className="w-8 h-8" />
               </div>
 
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 text-[#FF6F61] text-xs font-bold uppercase tracking-wider mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 text-[#FF6F61] text-xs font-bold uppercase tracking-wider mb-4 w-fit">
                 Recommended
               </div>
 
               <h2 className="text-2xl font-bold text-gray-900 mb-3">
                 Store Integration Demo
               </h2>
-              <p className="text-gray-500 mb-8 leading-relaxed h-14">
+              {/* Đã xóa h-14, thêm flex-grow */}
+              <p className="text-gray-500 mb-8 leading-relaxed flex-grow">
                 See exactly how your customers will experience the "Try-On"
                 button while shopping on your online store.
               </p>
 
               <Link
                 to="/shop-demo"
-                className="inline-flex items-center gap-2 font-bold text-[#FF6F61]"
+                className="inline-flex items-center gap-2 font-bold text-[#FF6F61] mt-auto"
               >
                 View Customer Flow{" "}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -100,30 +102,31 @@ export default function DemoSelection() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
-            className="group relative bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden ring-2 ring-transparent hover:ring-emerald-500/20"
+            className="group relative bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden ring-2 ring-transparent hover:ring-emerald-500/20 flex flex-col"
           >
             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-100 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 opacity-50 group-hover:opacity-100 transition-opacity"></div>
 
-            <div className="relative z-10">
+            <div className="relative z-10 flex flex-col h-full">
               <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
                 <Camera className="w-8 h-8" />
               </div>
 
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-600 text-xs font-bold uppercase tracking-wider mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-600 text-xs font-bold uppercase tracking-wider mb-4 w-fit">
                 New ✨
               </div>
 
               <h2 className="text-2xl font-bold text-gray-900 mb-3">
                 2D Live Try-On
               </h2>
-              <p className="text-gray-500 mb-8 leading-relaxed h-14">
+              {/* Đã xóa h-14, thêm flex-grow */}
+              <p className="text-gray-500 mb-8 leading-relaxed flex-grow">
                 Use your webcam for real-time AI-powered virtual try-on. See
                 clothes on your own body instantly.
               </p>
 
               <Link
                 to="/virtual-style-check"
-                className="inline-flex items-center gap-2 font-bold text-emerald-600"
+                className="inline-flex items-center gap-2 font-bold text-emerald-600 mt-auto"
               >
                 Try With Camera{" "}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
