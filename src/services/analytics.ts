@@ -152,7 +152,7 @@ export function identifyUser(user: UserProfile): void {
     // TODO: Thêm các thuộc tính user khác từ Supabase profile table
   });
 
-  debugLog("User Identified", user);
+  debugLog("User Identified", { ...user });
 }
 
 /**
