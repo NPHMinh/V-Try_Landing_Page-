@@ -46,9 +46,9 @@ export interface ProductInfo {
  * TODO: Replace with real user from useSupabaseAuth() hook or context
  */
 const MOCK_USER: UserProfile = {
-  userId: "mock-user-demo-001",
-  email: "demo@vtry.vn",
-  displayName: "Demo User",
+  userId: "001",
+  email: "Hoangquan@gmail.com",
+  displayName: "Nguyễn Phạm Hoàng Quân",
 };
 
 /**
