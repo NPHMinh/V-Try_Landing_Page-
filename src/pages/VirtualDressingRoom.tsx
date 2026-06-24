@@ -13,7 +13,7 @@ import {
   Float,
   useGLTF,
 } from "@react-three/drei";
-import { Settings, Info, Ruler, UserCircle2, X } from "lucide-react";
+import { Settings, Info, UserCircle2, X } from "lucide-react";
 import * as THREE from "three";
 import SizeSuggestionModal from "../components/size-suggestion/SizeSuggestionModal";
 
@@ -197,6 +197,7 @@ const COLORS = [
 export default function VirtualDressingRoom() {
   const [selectedColor, setSelectedColor] = useState(COLORS[0].hex);
   const [selectedSize, setSelectedSize] = useState("M");
+  const [suggestedSize, setSuggestedSize] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("mybody");
   const [isTryOn, setIsTryOn] = useState(false);
   const [showProductInfo, setShowProductInfo] = useState(true);
@@ -218,6 +219,22 @@ export default function VirtualDressingRoom() {
 
   return (
     <div className="relative w-full h-[calc(100vh-4rem)] bg-zinc-50 overflow-hidden">
+      <style>{`
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes aiGlow {
+          0%, 100% { box-shadow: 0 0 8px 2px rgba(255,111,97,0.4); }
+          50% { box-shadow: 0 0 16px 4px rgba(249,115,22,0.6); }
+        }
+        .vdr-ai-btn {
+          background: linear-gradient(135deg, #FF6F61, #f97316, #e11d48, #FF6F61);
+          background-size: 300% 300%;
+          animation: gradientShift 3s ease infinite, aiGlow 2s ease-in-out infinite;
+        }
+      `}</style>
       {/* 3D Canvas */}
       <div className="absolute inset-0 cursor-grab active:cursor-grabbing">
         <Canvas camera={{ position: [0, 1.5, 4], fov: 45 }}>
@@ -262,9 +279,8 @@ export default function VirtualDressingRoom() {
 
       {/* UI Overlay: Top Left (Product Details) */}
       <div
-        className={`absolute top-4 left-4 md:top-6 md:left-6 z-20 transition-all duration-500 ease-in-out ${
-          showProductInfo ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0 pointer-events-none"
-        }`}
+        className={`absolute top-4 left-4 md:top-6 md:left-6 z-20 transition-all duration-500 ease-in-out ${showProductInfo ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0 pointer-events-none"
+          }`}
       >
         <div className="p-6 bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 w-[calc(100vw-2rem)] sm:w-80 relative">
           <button
@@ -299,34 +315,53 @@ export default function VirtualDressingRoom() {
 
           <div className="space-y-4 mb-6">
             <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                  Select Size
-                </label>
-                <button
-                  onClick={() => setIsSizeModalOpen(true)}
-                  className="text-xs text-[#FF6F61] hover:underline flex items-center gap-1"
-                >
-                  <Ruler className="w-3 h-3" /> Size Guide
-                </button>
-              </div>
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">
+                Select Size
+              </label>
+
+              {/* AI Size Suggestion CTA Button */}
+              <button
+                onClick={() => setIsSizeModalOpen(true)}
+                className="vdr-ai-btn w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-white font-bold text-xs shadow-lg hover:opacity-90 transition-opacity mb-3"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+                  <path d="M12 2l2.09 6.26L20 9l-5.91 2.74L12 22l-2.09-10.26L4 9l5.91-.74L12 2z" />
+                </svg>
+                <span>✨ Gợi ý Size bằng AI</span>
+                <span className="bg-white/20 text-white text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full border border-white/30">
+                  AI
+                </span>
+              </button>
+
               <div className="flex gap-2">
                 {["S", "M", "L", "XL"].map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => {
-                      setSelectedSize(size);
-                      // TODO: Truyền product thật từ API vào trackSizeChange
-                      trackSizeChange({ size });
-                    }}
-                    className={`flex-1 py-2 text-sm font-bold rounded-lg border transition-all ${
-                      selectedSize === size
-                        ? "border-[#FF6F61] bg-[#FF6F61]/10 text-[#FF6F61]"
-                        : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
-                    }`}
-                  >
-                    {size}
-                  </button>
+                  <div key={size} className="relative flex-1">
+                    {suggestedSize === size && (
+                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap z-10">
+                        <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full shadow">
+                          Khuyên dùng
+                        </span>
+                      </div>
+                    )}
+                    <button
+                      onClick={() => {
+                        setSelectedSize(size);
+                        // TODO: Truyền product thật từ API vào trackSizeChange
+                        trackSizeChange({ size });
+                      }}
+                      className={`w-full py-2 text-sm font-bold rounded-lg border transition-all ${
+                        selectedSize === size
+                          ? suggestedSize === size
+                            ? "border-orange-500 bg-orange-50 text-orange-600"
+                            : "border-[#FF6F61] bg-[#FF6F61]/10 text-[#FF6F61]"
+                          : suggestedSize === size
+                          ? "border-orange-300 text-orange-500 hover:border-orange-500"
+                          : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
@@ -343,11 +378,10 @@ export default function VirtualDressingRoom() {
                 action: nextState ? "try_on" : "take_off",
               });
             }}
-            className={`w-full font-bold py-3 sm:py-3.5 rounded-xl transition-colors shadow-lg mb-3 text-sm sm:text-base ${
-              isTryOn
+            className={`w-full font-bold py-3 sm:py-3.5 rounded-xl transition-colors shadow-lg mb-3 text-sm sm:text-base ${isTryOn
                 ? "bg-white text-gray-900 border-2 border-gray-900 hover:bg-gray-50"
                 : "bg-[#FF6F61] text-white hover:bg-[#fa5c4d]"
-            }`}
+              }`}
           >
             {isTryOn ? "Take Off Garment" : "Try On In 3D"}
           </button>
@@ -379,9 +413,8 @@ export default function VirtualDressingRoom() {
 
       {/* UI Overlay: Top Right (Body Stats) */}
       <div
-        className={`absolute top-4 right-4 md:top-6 md:right-6 z-20 transition-all duration-500 ease-in-out ${
-          showBodyStats ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"
-        }`}
+        className={`absolute top-4 right-4 md:top-6 md:right-6 z-20 transition-all duration-500 ease-in-out ${showBodyStats ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"
+          }`}
       >
         <div className="w-[calc(100vw-2rem)] sm:w-80 relative">
           <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-2 mb-4 relative">
@@ -394,22 +427,20 @@ export default function VirtualDressingRoom() {
             <div className="flex">
               <button
                 onClick={() => setActiveTab("mannequin")}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all ${
-                  activeTab === "mannequin"
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all ${activeTab === "mannequin"
                     ? "bg-white shadow-sm text-gray-900"
                     : "text-gray-500 hover:text-gray-700"
-                }`}
+                  }`}
               >
                 <UserCircle2 className="w-4 h-4" />
                 Standard
               </button>
               <button
                 onClick={() => setActiveTab("mybody")}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all ${
-                  activeTab === "mybody"
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all ${activeTab === "mybody"
                     ? "bg-[#FF6F61] text-white shadow-sm"
                     : "text-gray-500 hover:text-gray-700"
-                }`}
+                  }`}
               >
                 <Settings className="w-4 h-4" />
                 My Body AI
@@ -546,11 +577,10 @@ export default function VirtualDressingRoom() {
                     colorHex: color.hex,
                   });
                 }}
-                className={`w-10 h-10 rounded-full border-2 transition-all duration-300 ${
-                  selectedColor === color.hex
+                className={`w-10 h-10 rounded-full border-2 transition-all duration-300 ${selectedColor === color.hex
                     ? "border-gray-900 scale-110 shadow-md"
                     : "border-transparent hover:scale-110"
-                }`}
+                  }`}
                 style={{ backgroundColor: color.hex }}
                 aria-label={`Select ${color.name}`}
               />
@@ -566,7 +596,10 @@ export default function VirtualDressingRoom() {
         onClose={() => setIsSizeModalOpen(false)}
         productId="tank-top"
         productName="V-TRY T-Shirt"
-        onSelectSize={(size) => setSelectedSize(size)}
+        onSelectSize={(size) => {
+          setSelectedSize(size);
+          setSuggestedSize(size);
+        }}
         onApplyBodyParams={(params) => {
           setBodyParams(params);
           setActiveTab("mybody");

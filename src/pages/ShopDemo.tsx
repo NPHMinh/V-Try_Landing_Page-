@@ -1,6 +1,6 @@
-import { ArrowLeft, Star, Heart, Share2, Ruler } from "lucide-react";
+import { ArrowLeft, Star, Heart, Share2, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import SizeSuggestionModal from "../components/size-suggestion/SizeSuggestionModal";
 
 export default function ShopDemo() {
@@ -8,6 +8,29 @@ export default function ShopDemo() {
   const [selectedSize, setSelectedSize] = useState("M");
   const [selectedColor, setSelectedColor] = useState("#111827");
   const [isSizeModalOpen, setIsSizeModalOpen] = useState(false);
+  const [suggestedSize, setSuggestedSize] = useState<string | null>(null);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tooltipAutoHideRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Auto-show tooltip after 3 seconds if no size is selected by user action
+  useEffect(() => {
+    tooltipTimerRef.current = setTimeout(() => {
+      if (!suggestedSize) {
+        setShowTooltip(true);
+        tooltipAutoHideRef.current = setTimeout(() => setShowTooltip(false), 6000);
+      }
+    }, 3000);
+    return () => {
+      if (tooltipTimerRef.current) clearTimeout(tooltipTimerRef.current);
+      if (tooltipAutoHideRef.current) clearTimeout(tooltipAutoHideRef.current);
+    };
+  }, [suggestedSize]);
+
+  const dismissTooltip = () => {
+    setShowTooltip(false);
+    if (tooltipAutoHideRef.current) clearTimeout(tooltipAutoHideRef.current);
+  };
 
   const colors = [
     { name: "Onyx Black", hex: "#111827" },
@@ -19,6 +42,38 @@ export default function ShopDemo() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-white pb-24">
+      {/* Inline styles for animations */}
+      <style>{`
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes pulseBorder {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(255, 111, 97, 0.5); }
+          50% { box-shadow: 0 0 0 6px rgba(255, 111, 97, 0); }
+        }
+        @keyframes aiPulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        @keyframes tooltipSlideIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .ai-gradient-btn {
+          background: linear-gradient(135deg, #FF6F61, #f97316, #e11d48, #FF6F61);
+          background-size: 300% 300%;
+          animation: gradientShift 3s ease infinite, pulseBorder 2s ease infinite;
+        }
+        .ai-badge {
+          animation: aiPulse 2s ease-in-out infinite;
+        }
+        .tooltip-animate {
+          animation: tooltipSlideIn 0.3s ease forwards;
+        }
+      `}</style>
+
       {/* Top Navigation */}
       <div className="border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -29,8 +84,7 @@ export default function ShopDemo() {
             <ArrowLeft className="w-4 h-4" /> Back to Demos
           </Link>
           <div className="text-sm font-medium text-gray-500 hidden sm:block">
-            Home / Men / Tops /{" "}
-            <span className="text-gray-900">V-Try T-Shirt</span>
+            Home / Men / Tops / <span className="text-gray-900">V-Try T-Shirt</span>
           </div>
         </div>
       </div>
@@ -105,30 +159,83 @@ export default function ShopDemo() {
 
             {/* Sizes */}
             <div className="mb-8">
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-3">
                 <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">
                   Select Size
                 </h3>
-                <button
-                  onClick={() => setIsSizeModalOpen(true)}
-                  className="text-sm font-medium text-[#FF6F61] hover:text-[#fa5c4d] flex items-center gap-1 transition-colors"
-                >
-                  <Ruler className="w-4 h-4" /> Size Guide
-                </button>
               </div>
+
+              {/* AI Size Suggestion Button with Tooltip */}
+              <div className="relative mb-4">
+                <button
+                  id="ai-size-btn"
+                  onClick={() => {
+                    setShowTooltip(false);
+                    setIsSizeModalOpen(true);
+                  }}
+                  className="ai-gradient-btn w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-white font-bold text-sm shadow-lg hover:opacity-90 transition-opacity"
+                >
+                  <SparklesIcon className="w-4 h-4" />
+                  <span>✨ Gợi ý Size bằng AI</span>
+                  <span className="ai-badge ml-1 bg-white/20 text-white text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border border-white/30">
+                    AI
+                  </span>
+                  {suggestedSize && (
+                    <span className="ml-1 bg-white text-orange-500 text-[10px] font-black px-2 py-0.5 rounded-full">
+                      Chính xác 99%
+                    </span>
+                  )}
+                </button>
+
+                {/* Smart Tooltip */}
+                {showTooltip && (
+                  <div className="tooltip-animate absolute bottom-full mb-3 left-0 right-0 z-30">
+                    <div className="relative bg-gray-900 text-white text-xs font-medium rounded-2xl px-4 py-3 shadow-2xl">
+                      <button
+                        onClick={dismissTooltip}
+                        className="absolute top-2 right-2 text-gray-400 hover:text-white transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                      <div className="flex items-start gap-2 pr-4">
+                        <span className="text-base">⚡</span>
+                        <p className="leading-relaxed">
+                          Bạn băn khoăn về kích cỡ? Hãy để AI gợi ý size vừa vặn nhất cho bạn chỉ trong 5 giây!
+                        </p>
+                      </div>
+                      {/* Tooltip arrow */}
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Size Grid */}
               <div className="grid grid-cols-4 gap-3">
                 {sizes.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setSelectedSize(s)}
-                    className={`py-3 text-sm font-bold rounded-xl border transition-all ${
-                      selectedSize === s
-                        ? "border-gray-900 bg-gray-900 text-white"
-                        : "border-gray-200 text-gray-600 hover:border-gray-300"
-                    }`}
-                  >
-                    {s}
-                  </button>
+                  <div key={s} className="relative">
+                    {suggestedSize === s && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap z-10">
+                        <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shadow-md">
+                          Khuyên dùng
+                        </span>
+                      </div>
+                    )}
+                    <button
+                      onClick={() => setSelectedSize(s)}
+                      className={`w-full py-3 text-sm font-bold rounded-xl border transition-all ${
+                        selectedSize === s
+                          ? suggestedSize === s
+                            ? "border-orange-500 bg-gradient-to-br from-orange-50 to-red-50 text-orange-600 shadow-md shadow-orange-100"
+                            : "border-gray-900 bg-gray-900 text-white"
+                          : suggestedSize === s
+                          ? "border-orange-300 text-orange-500 hover:border-orange-500"
+                          : "border-gray-200 text-gray-600 hover:border-gray-300"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
@@ -176,7 +283,10 @@ export default function ShopDemo() {
         onClose={() => setIsSizeModalOpen(false)}
         productId="hoodie"
         productName="V-Try Essential T-Shirt"
-        onSelectSize={(size) => setSelectedSize(size)}
+        onSelectSize={(size) => {
+          setSelectedSize(size);
+          setSuggestedSize(size);
+        }}
       />
     </div>
   );
@@ -186,14 +296,10 @@ function SparklesIcon(props: any) {
   return (
     <svg
       viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      fill="currentColor"
       {...props}
     >
-      <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+      <path d="M12 2l2.09 6.26L20 9l-5.91 2.74L12 22l-2.09-10.26L4 9l5.91-.74L12 2z" />
     </svg>
   );
 }

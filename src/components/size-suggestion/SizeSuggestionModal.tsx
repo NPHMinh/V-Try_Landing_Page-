@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Ruler } from "lucide-react";
+import { X } from "lucide-react";
 import SizeSuggestionForm from "./SizeSuggestionForm";
 
 interface Props {
@@ -48,16 +48,42 @@ export default function SizeSuggestionModal({
           >
             {/* Header */}
             <div className="p-6 pb-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-20">
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-2xl bg-orange-100 flex items-center justify-center text-[#FF6F61]">
-                  <Ruler className="w-5 h-5" />
+              <style>{`
+                @keyframes headerGradient {
+                  0% { background-position: 0% 50%; }
+                  50% { background-position: 100% 50%; }
+                  100% { background-position: 0% 50%; }
+                }
+                @keyframes badgePulse {
+                  0%, 100% { opacity: 1; transform: scale(1); }
+                  50% { opacity: 0.8; transform: scale(1.1); }
+                }
+                .modal-icon-bg {
+                  background: linear-gradient(135deg, #FF6F61, #f97316, #e11d48, #FF6F61);
+                  background-size: 300% 300%;
+                  animation: headerGradient 4s ease infinite;
+                }
+                .modal-ai-badge {
+                  animation: badgePulse 2s ease-in-out infinite;
+                }
+              `}</style>
+              <div className="flex items-center gap-3">
+                <div className="modal-icon-bg w-11 h-11 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                    <path d="M12 2l2.09 6.26L20 9l-5.91 2.74L12 22l-2.09-10.26L4 9l5.91-.74L12 2z" />
+                  </svg>
                 </div>
                 <div>
-                  <h3 className="font-black text-gray-900 text-lg uppercase tracking-wider">
-                    AI Size Suggestion
-                  </h3>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <h3 className="font-black text-gray-900 text-lg uppercase tracking-wider">
+                      Gợi ý Size AI
+                    </h3>
+                    <span className="modal-ai-badge bg-gradient-to-r from-orange-500 to-red-500 text-white text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full shadow">
+                      AI ✨
+                    </span>
+                  </div>
                   <p className="text-xs text-gray-500 font-medium">
-                    Tính toán kích cỡ cơ thể bằng trí tuệ nhân tạo
+                    Phân tích số đo & tìm size vừa vặn nhất chỉ trong 5 giây ⚡
                   </p>
                 </div>
               </div>
